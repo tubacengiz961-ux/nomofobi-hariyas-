@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomofobi Nörobiyolojik Risk Haritası</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --bg-color: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .question-block {
+            margin: 20px 0;
+            text-align: left;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 14px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1em;
+            text-align: left;
+            color: #2c3e50;
+        }
+
+        @media (hover: hover) {
+            .option-btn:hover {
+                background-color: #e2e6ea;
+                border-color: #cbd3da;
+                transform: translateX(5px);
+            }
+        }
+
+        .option-btn:active {
+            background-color: #d1d6db;
+            transform: scale(0.98);
+        }
+
+        #result-section {
+            display: none;
+            margin-top: 30px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .brain-container {
+            background-color: #fafbfc;
+            border: 2px solid #e0e6ed;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 500px;
+        }
+
+        .svg-brain {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .heat-node, .heat-text {
+            transition: opacity 2s ease-in-out;
+        }
+
+        .analysis-box {
+            background-color: #fdfbfb;
+            border-left: 5px solid var(--primary-color);
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 1.05em;
+            line-height: 1.6;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .progress-text {
+            text-align: right;
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .percentage-container {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .percentage-value {
+            font-size: 3.5em;
+            font-weight: bold;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        
+        .percentage-label {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Nomofobi Risk Haritası</h1>
+    <p>Akıllı telefon alışkanlıklarınızın beyninizdeki hangi bölgelerde stres yarattığını keşfedin.</p>
+
+    <div id="quiz-section">
+        <!-- Sorular JS ile buraya yüklenecek -->
+    </div>
+
+    <div id="result-section">
+        <h2>Nörobiyolojik Isı Haritanız</h2>
+        
+        <div class="brain-container">
+            <svg class="svg-brain" viewBox="0 0 500 350" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="12" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                </defs>
+                
+                <path d="M 250 40 C 370 40 440 100 440 180 C 440 250 370 280 320 280 C 290 300 240 320 200 300 C 140 320 90 280 90 220 C 70 180 90 110 140 80 C 170 50 200 40 250 40 Z" fill="#e8eaed" stroke="#bdc3c7" stroke-width="4"/>
+                <path d="M 140 80 Q 220 150 300 90 M 110 160 Q 240 220 370 140 M 160 240 Q 260 290 340 210 M 250 40 L 250 130" fill="none" stroke="#d5d8dc" stroke-width="3" stroke-linecap="round"/>
+                <path d="M 320 280 Q 280 340 260 360 M 280 290 Q 240 350 220 360" fill="none" stroke="#bdc3c7" stroke-width="6" stroke-linecap="round"/>
+
+                <circle id="node-prefrontal" class="heat-node" cx="370" cy="150" r="45" fill="#e74c3c" opacity="0" filter="url(#glow)"/>
+                <text id="text-prefrontal" class="heat-text" x="370" y="155" font-family="sans-serif" font-size="14" fill="white" text-anchor="middle" font-weight="bold" opacity="0">Prefrontal</text>
+                
+                <circle id="node-striatum" class="heat-node" cx="260" cy="180" r="35" fill="#e74c3c" opacity="0" filter="url(#glow)"/>
+                <text id="text-striatum" class="heat-text" x="260" y="185" font-family="sans-serif" font-size="14" fill="white" text-anchor="middle" font-weight="bold" opacity="0">Striatum</text>
+                
+                <circle id="node-amigdala" class="heat-node" cx="170" cy="210" r="30" fill="#e74c3c" opacity="0" filter="url(#glow)"/>
+                <text id="text-amigdala" class="heat-text" x="170" y="215" font-family="sans-serif" font-size="14" fill="white" text-anchor="middle" font-weight="bold" opacity="0">Amigdala</text>
+            </svg>
+        </div>
+
+        <div class="analysis-box">
+            <div id="analysis-text"></div>
+        </div>
+        
+        <button class="option-btn" style="margin-top:20px; text-align:center; background-color: var(--primary-color); color: white; display:block; width:100%; font-weight:bold;" onclick="location.reload()">Yeni Bir Analiz Yap</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            text: "1. Telefonunuzun şarjı %5'in altına düştüğünde ve priz bulamadığınızda ne hissedersiniz?",
+            options: [
+                { text: "Ciddi bir panik hali ve 'dünyadan kopma' korkusu.", scores: { amigdala: 1.0, prefrontal: 0.2, striatum: 0 } },
+                { text: "Hafif bir endişe, ama bir şekilde idare edebilirim.", scores: { amigdala: 0.3, prefrontal: 0, striatum: 0 } },
+                { text: "Pek umurumda olmaz, kapanırsa kapanır.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "2. Telefonunuz yanınızda olmadığında bir işe odaklanmakta zorlanır mısınız?",
+            options: [
+                { text: "Sürekli telefonumun nerede olduğunu düşünürüm, dikkatim dağılır.", scores: { amigdala: 0.2, prefrontal: 1.0, striatum: 0.4 } },
+                { text: "Biraz eksiklik hissederim ama işime devam edebilirim.", scores: { amigdala: 0.2, prefrontal: 0.4, striatum: 0 } },
+                { text: "Hayır, aksine çok daha rahat odaklanırım.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "3. Bildirim sesi gelmediği halde (fantom titreşim), telefonunuzu kontrol etme dürtüsü yaşıyor musunuz?",
+            options: [
+                { text: "Sürekli ekranı açıp kapatıyorum, bir şey kaçırmış gibi hissediyorum.", scores: { amigdala: 0, prefrontal: 0.3, striatum: 1.0 } },
+                { text: "Günde birkaç kez sebepsiz yere bakıyorum.", scores: { amigdala: 0, prefrontal: 0, striatum: 0.5 } },
+                { text: "Sadece çaldığında veya gerçekten bildirim geldiğinde bakarım.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "4. Gece uyumadan önce telefonu yatağınızdan uzak bir odaya bırakma fikri size ne hissettiriyor?",
+            options: [
+                { text: "Çok huzursuz olurum, uykuya dalmam zorlaşır.", scores: { amigdala: 0.8, prefrontal: 0, striatum: 0.6 } },
+                { text: "Biraz garip gelse de uyuyabilirim.", scores: { amigdala: 0.3, prefrontal: 0.2, striatum: 0.2 } },
+                { text: "Zaten genelde uzak tutarım, daha iyi uyurum.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "5. Arkadaşlarınızla veya ailenizle yüz yüze sohbet ederken telefonunuz nerede durur?",
+            options: [
+                { text: "Her an görebileceğim şekilde masanın üstünde veya elimdedir.", scores: { amigdala: 0, prefrontal: 0.4, striatum: 0.9 } },
+                { text: "Cebimde veya çantamdadır ama arada bir kontrol ederim.", scores: { amigdala: 0, prefrontal: 0.2, striatum: 0.4 } },
+                { text: "Ortamdayken telefonumu tamamen unuturum.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "6. Sabah uyandığınızda gözünüzü açtıktan sonra ilk yaptığınız şey nedir?",
+            options: [
+                { text: "Hemen telefonumu elime alıp mesajlara veya sosyal medyaya bakarım.", scores: { amigdala: 0, prefrontal: 0.5, striatum: 1.0 } },
+                { text: "Sadece saati veya acil bir arama var mı diye kontrol ederim.", scores: { amigdala: 0.2, prefrontal: 0.2, striatum: 0.3 } },
+                { text: "Yataktan kalkar, yüzümü yıkar veya güne başlarım; telefona daha sonra bakarım.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "7. Telefonunuzu evde unutup dışarı çıktığınızda fiziksel bir tepki (kalp çarpıntısı, terleme, huzursuzluk) yaşar mısınız?",
+            options: [
+                { text: "Evet, geri dönüp alana kadar ciddi stres yaşarım.", scores: { amigdala: 1.0, prefrontal: 0.4, striatum: 0 } },
+                { text: "Biraz canım sıkılır ama plansızsa geri dönmem.", scores: { amigdala: 0.4, prefrontal: 0.2, striatum: 0 } },
+                { text: "Hiçbir fiziksel rahatsızlık hissetmem.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        },
+        {
+            text: "8. Gün içinde sıkıldığınız ilk an (örn: durakta beklerken, asansörde) eliniz otomatik olarak telefona gidiyor mu?",
+            options: [
+                { text: "Evet, bunu düşünmeden, tamamen refleks olarak yapıyorum.", scores: { amigdala: 0, prefrontal: 0.8, striatum: 0.8 } },
+                { text: "Bazen yapıyorum, bazen etrafı izlemeyi tercih ediyorum.", scores: { amigdala: 0, prefrontal: 0.3, striatum: 0.3 } },
+                { text: "Hayır, kısa boşluklarda telefona bakma ihtiyacı duymuyorum.", scores: { amigdala: 0, prefrontal: 0, striatum: 0 } }
+            ]
+        }
+    ];
+
+    let currentQuestion = 0;
+    let totalScores = { amigdala: 0, prefrontal: 0, striatum: 0 };
+    // Tüm seçeneklerde en yüksek (A seçeneği) seçildiğinde alınabilecek maksimum toplam puan 11.3'tür.
+    const MAX_POSSIBLE_SCORE = 11.3; 
+
+    const quizSection = document.getElementById('quiz-section');
+    const resultSection = document.getElementById('result-section');
+    const analysisText = document.getElementById('analysis-text');
+
+    function renderQuestion() {
+        if (currentQuestion >= questions.length) {
+            showResults();
+            return;
+        }
+
+        const q = questions[currentQuestion];
+        let html = `
+            <div class="progress-text">Soru ${currentQuestion + 1} / ${questions.length}</div>
+            <div class="question-block">
+                <div class="question-text">${q.text}</div>
+                <div class="options">`;
+        
+        q.options.forEach((opt, index) => {
+            html += `<button class="option-btn" onclick="selectOption(${index})">${opt.text}</button>`;
+        });
+
+        html += `</div></div>`;
+        quizSection.innerHTML = html;
+    }
+
+    function selectOption(optionIndex) {
+        const selectedScores = questions[currentQuestion].options[optionIndex].scores;
+        
+        totalScores.amigdala += selectedScores.amigdala;
+        totalScores.prefrontal += selectedScores.prefrontal;
+        totalScores.striatum += selectedScores.striatum;
+
+        currentQuestion++;
+        renderQuestion();
+    }
+
+    function showResults() {
+        quizSection.style.display = 'none';
+        resultSection.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Yüzdelik Oranı Hesapla
+        let totalSum = totalScores.amigdala + totalScores.prefrontal + totalScores.striatum;
+        let percentage = Math.round((totalSum / MAX_POSSIBLE_SCORE) * 100);
+        if (percentage > 100) percentage = 100;
+
+        // Isı Haritası Yoğunluğu
+        const normalizationFactor = 3.5;
+        const amigdalaIntensity = Math.min(totalScores.amigdala / normalizationFactor, 1);
+        const prefrontalIntensity = Math.min(totalScores.prefrontal / normalizationFactor, 1);
+        const striatumIntensity = Math.min(totalScores.striatum / normalizationFactor, 1);
+
+        setTimeout(() => {
+            if (amigdalaIntensity > 0.1) {
+                document.getElementById('node-amigdala').style.opacity = amigdalaIntensity;
+                document.getElementById('text-amigdala').style.opacity = amigdalaIntensity + 0.3;
+            }
+            if (prefrontalIntensity > 0.1) {
+                document.getElementById('node-prefrontal').style.opacity = prefrontalIntensity;
+                document.getElementById('text-prefrontal').style.opacity = prefrontalIntensity + 0.3;
+            }
+            if (striatumIntensity > 0.1) {
+                document.getElementById('node-striatum').style.opacity = striatumIntensity;
+                document.getElementById('text-striatum').style.opacity = striatumIntensity + 0.3;
+            }
+        }, 400);
+
+        generateAnalysis(totalScores, percentage);
+    }
+
+    function generateAnalysis(scores, percentage) {
+        // En yüksek puanı alan bölgeyi bul
+        let highestRegion = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        let text = "";
+        let levelName = "";
+        let colorCode = "";
+
+        // Puan ve Orana Göre Dinamik Analiz
+        if (percentage < 20) {
+            levelName = "Sağlıklı / Dijital Bağımsız";
+            colorCode = "#27ae60"; // Yeşil
+            text = "<strong>Harika bir denge!</strong> Teknolojiyi tamamen bir araç olarak kullanıyorsunuz. Beyniniz dijital uyaranlar karşısında sakin kalabiliyor. Yoksunluk kaygısı veya dopamin bağımlılığı yaşamıyorsunuz. Odaklanma ve duygu durum kontrolünüz tamamen sizin elinizde.";
+        } else if (percentage < 50) {
+            levelName = "Hafif Düzey Bağımlılık Eğilimi";
+            colorCode = "#f39c12"; // Sarı/Turuncu
+            if (highestRegion === 'amigdala') {
+                text = "<strong>Amigdala Etkisi (Kaygı Başlangıcı):</strong> Telefonunuzdan uzak kalmak sizde hafif bir huzursuzluk yaratmaya başlamış. Amigdalanız (tehdit merkezi) telefonsuzluğu ufak bir stres faktörü olarak algılıyor.";
+            } else if (highestRegion === 'prefrontal') {
+                text = "<strong>Prefrontal Korteks (Odaklanma Dağınıklığı):</strong> Ön beyin lobunuz dijital uyaranlar nedeniyle hafifçe yorulmaya başlamış. Sıkıldığınızda refleks olarak telefona gitmeniz, uzun süreli odaklanmanızı zorlaştırıyor olabilir.";
+            } else {
+                text = "<strong>Striatum (Ödül Arayışı):</strong> Beyninizin dopamin merkezi, telefondan gelen bildirimleri ve yenilikleri aramaya başlamış. Bu durum henüz günlük hayatınızı büyük ölçüde etkilemese de boş zamanlarınızda sürekli ekran kaydırma isteği yaratıyor.";
+            }
+        } else if (percentage < 80) {
+            levelName = "Orta Düzey Nomofobi";
+            colorCode = "#e67e22"; // Turuncu
+            if (highestRegion === 'amigdala') {
+                text = "<strong>Amigdala Aşırı Uyarılmış (Stres ve Panik):</strong> Telefonunuzun şarjının bitmesi veya yanınızda olmaması beyninizde <em>gerçek bir tehdit</em> algısı yaratıyor. Amigdala sürekli tetikte olduğu için telefonsuz anlarda gereksiz yere kortizol (stres hormonu) salgılıyorsunuz.";
+            } else if (highestRegion === 'prefrontal') {
+                text = "<strong>Prefrontal Korteks Baskılanmış (İrade Zayıflaması):</strong> Telefon kullanımınız artık yürütücü işlevlerinizi (odaklanma, planlama, dürtü kontrolü) ciddi şekilde baskılıyor. Ekrana bakma dürtüsüne karşı koymakta oldukça zorlanıyorsunuz.";
+            } else {
+                text = "<strong>Striatum Hakimiyeti (Dopamin Döngüsü):</strong> Beyninizin ödül merkezi (striatum) yoğun bir şekilde akıllı telefona şartlanmış durumda. Fantom titreşimler hissetmeniz veya sabah ilk iş telefona bakmanız, beyninizin sürekli yeni dopamin akışına bağımlı hale geldiğini gösteriyor.";
+            }
+        } else {
+            levelName = "Şiddetli Nomofobi (Yüksek Bağımlılık)";
+            colorCode = "#c0392b"; // Kırmızı
+            if (highestRegion === 'amigdala') {
+                text = "<strong>Amigdala Alarm Durumunda (Şiddetli Anksiyete):</strong> Telefonunuzla bağınız koptuğunda kalp çarpıntısı, ciddi huzursuzluk veya panik hali yaşıyorsunuz. Beyniniz telefonu bir nevi hayatta kalma aracınız olarak kodlamış ve sinir sisteminiz sürekli savaş/kaç modunda.";
+            } else if (highestRegion === 'prefrontal') {
+                text = "<strong>Prefrontal Korteks Tüketimi (Kontrol Kaybı):</strong> Beyninizin mantık, irade ve kontrol merkezi dijital yorgunluktan dolayı pes etmiş durumda. Telefona bakmak artık bilinçli bir karar değil, engel olamadığınız çok güçlü bir reflekse dönüşmüş. Derin çalışma (deep work) yapmanız neredeyse imkansız.";
+            } else {
+                text = "<strong>Striatum Aşırı Yüklemesi (Kompulsif Döngü):</strong> Ödül ve alışkanlık merkeziniz tamamen ele geçirilmiş. Telefon artık size zevk vermekten çok, bakmadığınızda acı ve huzursuzluk veren kompulsif (zorlantılı) bir bağımlılığa dönüşmüş durumda.";
+            }
+        }
+
+        // Renkleri Dinamik Olarak Kutu Kenarına Ata
+        document.querySelector('.analysis-box').style.borderLeftColor = colorCode;
+
+        // Analiz Çıktısı HTML'i
+        let htmlContent = `
+            <div class="percentage-container">
+                <div class="percentage-value" style="color: ${colorCode};">%${percentage}</div>
+                <div class="percentage-label">${levelName}</div>
+            </div>
+            <p style="margin-top:0;">${text}</p>
+        `;
+        
+        analysisText.innerHTML = htmlContent;
+    }
+
+    renderQuestion();
+</script>
+</body>
+</html>
